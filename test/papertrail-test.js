@@ -41,12 +41,12 @@ describe('connection tests', function() {
         connectionDelay: 10000
       });
 
-		// NOTE!  We intentionally left off the error handler here, this proves
-		// the process won't exit on a connection error.
+      // NOTE!  We intentionally left off the error handler here, this proves
+      // the process won't exit on a connection error.
 
-		setTimeout(function() {
-			done();
-		}, 125);
+      setTimeout(function() {
+        done();
+      }, 125);
     });
 
     it.skip('should timeout', function (done) {
@@ -119,11 +119,11 @@ describe('connection tests', function() {
       });
 
       pt.on('connect', function () {
-          connCount++;
-          if (connCount > 5) {
-              clearInterval(someInterval);
-              done();
-          }
+        connCount++;
+        if (connCount > 5) {
+          clearInterval(someInterval);
+          done();
+        }
 
       });
     });
@@ -141,7 +141,7 @@ describe('connection tests', function() {
       });
 
       pt.on('connect', function () {
-        pt.log('info', 'hello', function() {
+        pt.log({level:'info', message:'hello'}, function() {
 
         });
       });
@@ -153,42 +153,42 @@ describe('connection tests', function() {
       }
     });
 
-	  it('should write buffered events before new events', function(done) {
-		  var pt = new Papertrail({
-			  host: 'localhost',
-			  port: 23456,
-			  attemptsBeforeDecay: 0,
-			  connectionDelay: 10000
-		  });
+    it('should write buffered events before new events', function(done) {
+      var pt = new Papertrail({
+        host: 'localhost',
+        port: 23456,
+        attemptsBeforeDecay: 0,
+        connectionDelay: 10000
+      });
 
-		  pt.log('info', 'first', {}, function() {
+      pt.log({level:'info', message:'first', meta:{}}, function() {
 
-		  });
+      });
 
-		  pt.on('error', function(err) {
-			  should.not.exist(err);
-		  });
+      pt.on('error', function(err) {
+        should.not.exist(err);
+      });
 
-		  pt.on('connect', function() {
-			  (function() {
-				  pt.log('info', 'second', {}, function() {
+      pt.on('connect', function() {
+        (function() {
+          pt.log({level:'info', message:'second', meta:{}}, function() {
 
-				  });
-			  }).should.not.throw();
-		  });
+          });
+        }).should.not.throw();
+      });
 
-		  var gotFirst = false;
-		  listener = function(data) {
-			  if (gotFirst) {
-				  return;
-			  }
-			  should.exist(data);
-			  var lines = data.toString().split('\r\n');
-			  lines[0].should.match(/first/);
-			  gotFirst = true;
-			  done();
-		  }
-	  });
+      var gotFirst = false;
+      listener = function(data) {
+        if (gotFirst) {
+          return;
+        }
+        should.exist(data);
+        var lines = data.toString().split('\r\n');
+        lines[0].should.match(/first/);
+        gotFirst = true;
+        done();
+      }
+    });
 
     it('should support object meta', function (done) {
       var pt = new Papertrail({
@@ -204,7 +204,7 @@ describe('connection tests', function() {
 
       pt.on('connect', function () {
         (function () {
-          pt.log('info', 'hello', { meta: 'object' }, function () {
+          pt.log({level: 'info', message:'hello', meta:{ meta: 'object' }}, function () {
 
           });
         }).should.not.throw();
@@ -232,7 +232,7 @@ describe('connection tests', function() {
 
       pt.on('connect', function () {
         (function () {
-          pt.log('info', 'hello', ['object'], function () {
+          pt.log({level:'info', message:'hello', meta:['object']}, function () {
 
           });
         }).should.not.throw();
@@ -260,7 +260,7 @@ describe('connection tests', function() {
 
       pt.on('connect', function () {
         (function () {
-          pt.log('info', 'hello', null, function () {
+          pt.log({level:'info', message:'hello', meta:null}, function () {
 
           });
         }).should.not.throw();
@@ -287,7 +287,7 @@ describe('connection tests', function() {
 
       pt.on('connect', function () {
         (function() {
-          pt.log('info', 'hello', 'meta object', function () {
+          pt.log({level:'info', message:'hello', meta:'meta object'}, function () {
 
           });
         }).should.not.throw();
@@ -316,36 +316,36 @@ describe('connection tests', function() {
       });
     });
 
-      // creates a logger with flushOnClose and something buffered
-	  // connects, then closes, ensure what we wanted was written.
-	  it('flushOnClose should write buffered events before closing the stream', function(done) {
-		  var pt = new Papertrail({
-			  host: 'localhost',
-			  port: 23456,
-			  attemptsBeforeDecay: 0,
-			  connectionDelay: 10000,
-			  flushOnClose: true
-		  });
+    // creates a logger with flushOnClose and something buffered
+    // connects, then closes, ensure what we wanted was written.
+    it('flushOnClose should write buffered events before closing the stream', function(done) {
+      var pt = new Papertrail({
+        host: 'localhost',
+        port: 23456,
+        attemptsBeforeDecay: 0,
+        connectionDelay: 10000,
+        flushOnClose: true
+      });
 
-		  pt.log('info', 'buffered', {}, function() {
+      pt.log({level:'info', message:'buffered', meta:{}}, function() {
 
-		  });
+      });
 
-		  pt.on('error', function(err) {
-			  should.not.exist(err);
-		  });
+      pt.on('error', function(err) {
+        should.not.exist(err);
+      });
 
-		  pt.on('connect', function() {
-			  pt.close();
-		  });
+      pt.on('connect', function() {
+        pt.close();
+      });
 
-		  listener = function(data) {
-			  should.exist(data);
-			  var lines = data.toString().split('\r\n');
-			  lines[0].should.match(/buffered/);
-			  done();
-		  }
-	  });
+      listener = function(data) {
+        should.exist(data);
+        var lines = data.toString().split('\r\n');
+        lines[0].should.match(/buffered/);
+        done();
+      }
+    });
 
     after(function(done) {
       server.close();
@@ -401,7 +401,7 @@ describe('connection tests', function() {
       });
 
       pt.on('connect', function () {
-        pt.log('info', 'hello', function () {
+        pt.log({level:'info', message:'hello'}, function () {
 
         });
       });
@@ -436,5 +436,4 @@ describe('connection tests', function() {
   });
 
 });
-
 

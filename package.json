@@ -5,7 +5,7 @@
   "author": "Ken Perkins <ken.perkins@rackspace.com>",
   "repository": {
     "type": "git",
-    "url": "http://github.com/kenperkins/winston-papertrail.git"
+    "url": "https://github.com/nChannel/winston-papertrail.git"
   },
   "keywords": [
     "logging",
@@ -21,7 +21,8 @@
     "winston": ">=0.6.x"
   },
   "dependencies": {
-    "glossy": "^0.1.7"
+    "glossy": "^0.1.7",
+    "triple-beam": "^1.1.0"
   },
   "peerDependencies": {
     "winston": ">=0.6.x"
